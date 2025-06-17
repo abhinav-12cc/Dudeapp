@@ -4,21 +4,47 @@ import ActionCard from "@/components/ActionCard";
 import { QUICK_ACTIONS } from "@/constants";
 import { useUserRole } from "@/hooks/useUserRole";
 import { useQuery } from "convex/react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { api } from "../../../../convex/_generated/api";
 import { useRouter } from "next/navigation";
 import MeetingModal from "@/components/MeetingModal";
 import LoaderUI from "@/components/LoaderUI";
 import { Loader2Icon } from "lucide-react";
 import MeetingCard from "@/components/MeetingCard";
+import { useUser } from "@clerk/nextjs";
+import { useMutation } from "convex/react";
 
 export default function Home() {
   const router = useRouter();
+  const { user, isLoaded } = useUser();
+  const syncUser = useMutation(api.users.syncUser);
 
   const { isInterviewer, isCandidate, isLoading } = useUserRole();
   const interviews = useQuery(api.interviews.getMyInterviews);
   const [showModal, setShowModal] = useState(false);
   const [modalType, setModalType] = useState<"start" | "join">();
+
+  // Auto-sync user after login
+  useEffect(() => {
+    if (isLoaded && user) {
+      const syncUserToDatabase = async () => {
+        try {
+          console.log("Auto-syncing user to database:", user.id);
+          await syncUser({
+            clerkId: user.id,
+            email: user.primaryEmailAddress?.emailAddress || "",
+            name: `${user.firstName || ""} ${user.lastName || ""}`.trim(),
+            image: user.imageUrl,
+          });
+          console.log("User auto-sync successful");
+        } catch (error) {
+          console.error("Error auto-syncing user:", error);
+        }
+      };
+
+      syncUserToDatabase();
+    }
+  }, [isLoaded, user, syncUser]);
 
   const handleQuickAction = (title: string) => {
     switch (title) {
@@ -74,7 +100,9 @@ export default function Home() {
         <>
           <div>
             <h1 className="text-3xl font-bold">Your Interviews</h1>
-            <p className="text-muted-foreground mt-1">View and join your scheduled interviews</p>
+            <p className="text-muted-foreground mt-1">
+              View and join your scheduled interviews
+            </p>
           </div>
 
           <div className="mt-8">
