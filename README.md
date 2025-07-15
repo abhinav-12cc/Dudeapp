@@ -1,6 +1,6 @@
-# CodeSync - Video Calling Interview Platform
+# DudeApp - Video Calling Interview Platform
 
-CodeSync is a modern, feature-rich platform designed for conducting technical interviews with integrated video calling and real-time coding capabilities. It provides a seamless experience for both interviewers and candidates.
+DudeApp is a modern, feature-rich platform designed for conducting technical interviews with integrated video calling and real-time coding capabilities. It provides a seamless experience for both interviewers and candidates.
 
 ![Demo App](/public/screenshot-for-readme.png)
 
